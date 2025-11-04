@@ -5,6 +5,7 @@ export default abstract class implements IRoute {
     ctx: ExecutionContext;
 
     protected accepts: Array<string> = [];
+    protected url?: string;
 
     constructor(env: Env, ctx: ExecutionContext) {
         this.env = env;
@@ -22,6 +23,19 @@ export default abstract class implements IRoute {
         else if (this.accepts.includes(request.method)) {
             //acceptance restrictions pass
             result = true;
+        }
+        else {
+            result = false;
+        }
+
+        if (!this.url) {
+            result = true;
+        }
+        else if (request.url.endsWith(this.url)) {
+            result = true;
+        }
+        else {
+            result = false;
         }
 
         return new Promise((r) => r(result));

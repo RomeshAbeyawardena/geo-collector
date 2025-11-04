@@ -15,20 +15,15 @@ export default class extends base {
     constructor(env: Env, ctx: ExecutionContext) {
         super(env, ctx);
         this.accepts.push('POST')
+        this.url = 'api/geo';
     }
 
-    async canAcceptRequest(request: Request): Promise<boolean> {
-        let canAcceptRequest = await super.canAcceptRequest(request)
-            && request.url.endsWith('api/geo');
-        console.log(request.url);
-        return canAcceptRequest;
-    }
     async handle(request: Request): Promise<Response> {
 
         const formData = await request.formData();
         const coordinates: ICoordinate = { latitude: 0, longitude: 0 };
         formData.forEach((v, k) => {
-            console.log(k, v);
+
             if (k == "lat" || k == "latitude") {
                 coordinates.latitude = Number(v);
             }

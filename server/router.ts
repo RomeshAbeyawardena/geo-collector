@@ -44,7 +44,6 @@ export default class implements IRouter {
         let route: IRoute | undefined;
 
         for (let r of this.routes) {
-            console.log(r.name);
             var value = await r.canAcceptRequest(request);
 
             if (value) {
