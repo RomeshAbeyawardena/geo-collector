@@ -1,7 +1,7 @@
 import { IRouter } from "../route";
 
 import base from "./base";
-import { ExecutionContext } from "@cloudflare/workers-types"
+import { console, Env, ExecutionContext, Request, Response } from "../../worker-configuration";
 
 export interface ICoordinate {
     latitude: number;
@@ -37,7 +37,12 @@ export default class extends base {
             }
         });
 
-        addGeoLocation(coordinates);
+        if (!Number.isFinite(coordinates.latitude) || !Number.isFinite(coordinates.longitude)) {
+            return new Response(JSON.stringify({ error: 'Invalid coordinates' }),
+                { status: 400, headers: { 'Content-Type': 'application/json' } });
+        }
+
+        await this.addGeoLocation(coordinates);
         return new Response('{"name": "Coordinates commited"}', { status: 201 });
     }
 
@@ -45,9 +50,9 @@ export default class extends base {
         router.registerRoute(this);
     }
 
-}
+    addGeoLocation(coordinates: ICoordinate): Promise<void> {
+        console.log(coordinates);
 
-function addGeoLocation(coordinates: ICoordinate): Promise<void> {
-    console.log(coordinates);
-    return new Promise((r) => r());
+        return new Promise((r) => r());
+    }
 }

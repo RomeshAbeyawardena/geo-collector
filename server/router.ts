@@ -1,3 +1,4 @@
+import { Env, ExecutionContext, Request, Response } from '../worker-configuration';
 import { IRoute, IRouter } from "./route";
 import RegisterRoutes from "./route-registration";
 import base from "./routes/base";

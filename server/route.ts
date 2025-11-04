@@ -1,3 +1,5 @@
+import { Env, ExecutionContext, Request, Response } from '../worker-configuration';
+
 export interface IRouteHandler {
     handle(request: Request): Promise<Response>;
 }

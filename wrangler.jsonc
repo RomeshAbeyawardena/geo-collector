@@ -12,6 +12,14 @@
 	},
 	"observability": {
 		"enabled": true
+	},
+	"queues": {
+		"producers": [
+			{
+				"queue": "geo-data",
+				"binding": "geo_data"
+			}
+		]
 	}
 	/**
 	 * Smart Placement
