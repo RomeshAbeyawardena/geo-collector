@@ -14,28 +14,14 @@ export default abstract class implements IRoute {
 
     abstract name: string;
     canAcceptRequest(request: Request): Promise<boolean> {
-        let result = false;
+        let result = true;
 
-        if (this.accepts.length < 1) {
-            //accepts anything
-            result = true;
-        }
-        else if (this.accepts.includes(request.method)) {
-            //acceptance restrictions pass
-            result = true;
-        }
-        else {
-            result = false;
+        if (this.accepts.length) {
+            result = this.accepts.includes(request.method);
         }
 
-        if (!this.url) {
-            result = true;
-        }
-        else if (request.url.endsWith(this.url)) {
-            result = true;
-        }
-        else {
-            result = false;
+        if (this.url) {
+            result = request.url.endsWith(this.url);
         }
 
         return new Promise((r) => r(result));

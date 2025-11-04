@@ -11,6 +11,7 @@ const getName = async () => {
   formData.append("lng", "93405934");
   formData.append("alt", "9340");
   const res = await fetch('/api/geo', { method: "POST", body: formData });
+  //const res = await fetch('/api');
   const data = await res.json();
   name.value = data.name;
 }
