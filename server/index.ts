@@ -1,12 +1,10 @@
-export default {
-	fetch(request) {
-		const url = new URL(request.url);
+import router from "./router";
 
-		if (url.pathname.startsWith("/api/")) {
-			return Response.json({
-				name: "Cloudflare",
-			});
-		}
-		return new Response(null, { status: 404 });
+export default {
+	async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+
+		const r = new router(env, ctx);
+
+		return await r.handle(request);
 	},
 } satisfies ExportedHandler<Env>;
