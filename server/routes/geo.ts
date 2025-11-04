@@ -1,7 +1,5 @@
 import { IRouter } from "../route";
-
 import base from "./base";
-import { console, Env, ExecutionContext, Request, Response } from "../../worker-configuration";
 
 export interface ICoordinate {
     latitude: number;
@@ -50,9 +48,8 @@ export default class extends base {
         router.registerRoute(this);
     }
 
-    addGeoLocation(coordinates: ICoordinate): Promise<void> {
+    async addGeoLocation(coordinates: ICoordinate): Promise<void> {
         console.log(coordinates);
-
-        return new Promise((r) => r());
+        await this.env.geo_data.send(JSON.stringify(coordinates));
     }
 }

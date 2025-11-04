@@ -1,7 +1,5 @@
 import { IRoute, IRouter } from "../route";
 
-import { Env, ExecutionContext, Request, Response } from "../../worker-configuration";
-
 export default abstract class implements IRoute {
     env: Env;
     ctx: ExecutionContext;
