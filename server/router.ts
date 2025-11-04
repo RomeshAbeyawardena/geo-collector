@@ -32,10 +32,9 @@ export default class implements IRouter {
         this.env = env;
         this.ctx = ctx;
 
+        RegisterRoutes(this, env, ctx);
         new MyCatchAllRoute(env, ctx)
             .registerRoute(this);
-
-        RegisterRoutes(this, env, ctx);
     }
 
     registerRoute(route: IRoute): void {
@@ -45,11 +44,12 @@ export default class implements IRouter {
         let route: IRoute | undefined;
 
         for (let r of this.routes) {
+            console.log(r.name);
             var value = await r.canAcceptRequest(request);
 
             if (value) {
-
                 route = r;
+                break;
             }
         }
 

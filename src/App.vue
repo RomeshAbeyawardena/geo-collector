@@ -6,9 +6,13 @@ import { ref } from 'vue'
 const name = ref('Unknown')
 
 const getName = async () => {
-  const res = await fetch('/api/')
-  const data = await res.json()
-  name.value = data.name
+  const formData = new FormData();
+  formData.append("lat", "3983589");
+  formData.append("lng", "93405934");
+  formData.append("alt", "9340");
+  const res = await fetch('/api/geo', { method: "POST", body: formData });
+  const data = await res.json();
+  name.value = data.name;
 }
 </script>
 
