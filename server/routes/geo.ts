@@ -18,7 +18,7 @@ const schema = z.object({
 export default class extends base {
     name: string = "Geo";
 
-    private lastError: string;
+    private lastError?: string;
     constructor(env: Env, ctx: ExecutionContext) {
         super(env, ctx);
         this.accepts.push('POST')
@@ -70,19 +70,28 @@ export default class extends base {
                 coordinates = result;
             }
             else {
-                return new Response(JSON.stringify({ error: 'Invalid coordinates: ' + this.lastError }),
-                    { status: 400, headers: { 'Content-Type': 'application/json' } });
+                return this.error({
+                    message: 'Invalid coordinates: '
+                        + (!this.lastError ? "Unknown" : this.lastError)
+                });
             }
         }
         else {
             if (!await this.handleForm(request, coordinates)) {
-                return new Response(JSON.stringify({ error: 'Invalid coordinates' }),
-                    { status: 400, headers: { 'Content-Type': 'application/json' } });
+                return this.error({
+                    message: 'Invalid coordinates'
+                });
             }
         }
 
         await this.addGeoLocation(coordinates);
-        return new Response('{"name": "Coordinates commited"}', { status: 201 });
+        const message = "Coordinated committed";
+        return this.json({
+            data: {
+                name: message
+            },
+            message: message,
+        }, 201);
     }
 
     registerRoute(router: IRouter): void {

@@ -1,5 +1,20 @@
 import { IRoute, IRouter } from "../route";
 
+export interface MessageState {
+    message: string;
+    detail?: string;
+}
+
+export interface ErrorState extends MessageState {
+    automationId?: string;
+    code?: number;
+    continuationId?: string;
+}
+
+export interface Result extends MessageState {
+    data?: any
+}
+
 export default abstract class implements IRoute {
     env: Env;
     ctx: ExecutionContext;
@@ -8,6 +23,17 @@ export default abstract class implements IRoute {
     protected url?: string;
 
     protected readonly headers: Record<string, string> = {};
+
+    protected json(result: Result, statusCode?: number) {
+        return new Response(JSON.stringify(result), { status: statusCode });
+    }
+
+    protected error(state: ErrorState, statusCode?: number): Response {
+        return new Response(JSON.stringify(state), {
+            status: statusCode ?? 400,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
 
     static instance<T extends IRoute>(
         ctor: new (env: Env, ctx: ExecutionContext) => T,
