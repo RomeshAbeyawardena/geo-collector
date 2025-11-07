@@ -7,6 +7,16 @@ export default abstract class implements IRoute {
     protected accepts: Array<string> = [];
     protected url?: string;
 
+    protected readonly headers: Record<string, string> = {};
+
+    static instance<T extends IRoute>(
+        ctor: new (env: Env, ctx: ExecutionContext) => T,
+        env: Env,
+        ctx: ExecutionContext
+    ): T {
+        return new ctor(env, ctx);
+    }
+
     constructor(env: Env, ctx: ExecutionContext) {
         this.env = env;
         this.ctx = ctx;
@@ -15,6 +25,12 @@ export default abstract class implements IRoute {
     abstract name: string;
     canAcceptRequest(request: Request): Promise<boolean> {
         let result = true;
+
+        const headers = request.headers;
+
+        headers.forEach((v, h) => {
+            this.headers[h] = v;
+        });
 
         if (this.accepts.length) {
             result = this.accepts.includes(request.method);

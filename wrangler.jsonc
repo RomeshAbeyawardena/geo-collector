@@ -8,6 +8,7 @@
 	"compatibility_date": "2025-11-04",
 	"main": "server/index.ts",
 	"assets": {
+		"directory": "assets",
 		"not_found_handling": "single-page-application"
 	},
 	"observability": {
@@ -18,6 +19,12 @@
 			{
 				"queue": "geo-data",
 				"binding": "geo_data"
+			}
+		],
+		"consumers": [
+			{
+				"queue": "geo_data",
+				"type": "service"
 			}
 		]
 	}

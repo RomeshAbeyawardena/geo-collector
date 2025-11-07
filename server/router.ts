@@ -1,6 +1,6 @@
 import { IRoute, IRouter } from "./route";
 import RegisterRoutes from "./route-registration";
-import base from "./routes/base";
+import base from "./routes/route-base";
 
 export class MyCatchAllRoute extends base {
     name: string = "*";

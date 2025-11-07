@@ -1,5 +1,5 @@
 import { IRouter } from "../route";
-import base from "./base";
+import base from "./route-base";
 
 export interface ICoordinate {
     latitude: number;
@@ -16,10 +16,14 @@ export default class extends base {
         this.url = 'api/geo';
     }
 
-    async handle(request: Request): Promise<Response> {
+    async handleJson(request: Request): Promise<ICoordinate> {
+        const input = await request.text();
+        return JSON.parse(input);
+    }
 
+    async handleForm(request: Request, coordinates: ICoordinate): Promise<boolean> {
         const formData = await request.formData();
-        const coordinates: ICoordinate = { latitude: 0, longitude: 0 };
+
         formData.forEach((v, k) => {
 
             if (k == "lat" || k == "latitude") {
@@ -35,9 +39,22 @@ export default class extends base {
             }
         });
 
-        if (!Number.isFinite(coordinates.latitude) || !Number.isFinite(coordinates.longitude)) {
-            return new Response(JSON.stringify({ error: 'Invalid coordinates' }),
-                { status: 400, headers: { 'Content-Type': 'application/json' } });
+        return !Number.isFinite(coordinates.latitude) || !Number.isFinite(coordinates.longitude);
+    }
+
+    async handle(request: Request): Promise<Response> {
+
+        const headerType = this.headers["content-type"];
+        let coordinates: ICoordinate = { latitude: 0, longitude: 0 };
+
+        if (headerType && headerType == "application/json") {
+            coordinates = await this.handleJson(request);
+        }
+        else {
+            if (await this.handleForm(request, coordinates)) {
+                return new Response(JSON.stringify({ error: 'Invalid coordinates' }),
+                    { status: 400, headers: { 'Content-Type': 'application/json' } });
+            }
         }
 
         await this.addGeoLocation(coordinates);
