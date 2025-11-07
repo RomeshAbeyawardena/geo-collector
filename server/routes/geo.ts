@@ -1,19 +1,6 @@
+import { ICoordinate, ICoordinateSchema } from "../models/ICoordinate";
 import { IRouter } from "../route";
 import base from "./route-base";
-import { z } from "zod";
-
-export interface ICoordinate {
-    latitude: number;
-    longitude: number;
-    altitude?: number;
-}
-
-const schema = z.object({
-    latitude: z.number(),
-    longitude: z.number(),
-    altitude: z.int().optional()
-});
-
 
 export default class extends base {
     name: string = "Geo";
@@ -27,7 +14,7 @@ export default class extends base {
 
     async handleJson(request: Request): Promise<ICoordinate | null> {
         const input = await request.text();
-        const result = await schema.safeParseAsync(JSON.parse(input));
+        const result = await ICoordinateSchema.safeParseAsync(JSON.parse(input));
 
         if (result.error) {
             this.lastError = result.error.message;
@@ -55,7 +42,9 @@ export default class extends base {
             }
         });
 
-        return !Number.isFinite(coordinates.latitude) || !Number.isFinite(coordinates.longitude);
+        return !Number.isFinite(coordinates.latitude)
+            || !Number.isFinite(coordinates.longitude)
+            || (coordinates.altitude != undefined && !Number.isFinite(coordinates.altitude));
     }
 
     async handle(request: Request): Promise<Response> {
@@ -85,7 +74,7 @@ export default class extends base {
         }
 
         await this.addGeoLocation(coordinates);
-        const message = "Coordinated committed";
+        const message = "Coordinates committed";
         return this.json({
             data: {
                 name: message
