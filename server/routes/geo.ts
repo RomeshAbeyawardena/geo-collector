@@ -1,5 +1,6 @@
 import { IRouter } from "../route";
 import base from "./route-base";
+import { z } from "zod";
 
 export interface ICoordinate {
     latitude: number;
@@ -7,18 +8,33 @@ export interface ICoordinate {
     altitude?: number;
 }
 
+const schema = z.object({
+    latitude: z.number(),
+    longitude: z.number(),
+    altitude: z.int().optional()
+});
+
+
 export default class extends base {
     name: string = "Geo";
 
+    private lastError: string;
     constructor(env: Env, ctx: ExecutionContext) {
         super(env, ctx);
         this.accepts.push('POST')
         this.url = 'api/geo';
     }
 
-    async handleJson(request: Request): Promise<ICoordinate> {
+    async handleJson(request: Request): Promise<ICoordinate | null> {
         const input = await request.text();
-        return JSON.parse(input);
+        const result = await schema.safeParseAsync(JSON.parse(input));
+
+        if (result.error) {
+            this.lastError = result.error.message;
+            return null;
+        }
+
+        return result.data as ICoordinate;
     }
 
     async handleForm(request: Request, coordinates: ICoordinate): Promise<boolean> {
@@ -48,10 +64,18 @@ export default class extends base {
         let coordinates: ICoordinate = { latitude: 0, longitude: 0 };
 
         if (headerType && headerType == "application/json") {
-            coordinates = await this.handleJson(request);
+            let result = await this.handleJson(request);
+
+            if (result) {
+                coordinates = result;
+            }
+            else {
+                return new Response(JSON.stringify({ error: 'Invalid coordinates: ' + this.lastError }),
+                    { status: 400, headers: { 'Content-Type': 'application/json' } });
+            }
         }
         else {
-            if (await this.handleForm(request, coordinates)) {
+            if (!await this.handleForm(request, coordinates)) {
                 return new Response(JSON.stringify({ error: 'Invalid coordinates' }),
                     { status: 400, headers: { 'Content-Type': 'application/json' } });
             }
