@@ -1,5 +1,5 @@
 import RegisterMessageHandlers from "./message-registration";
-import MesssageHandlerBase from "./MesssageHandlerBase";
+import MesssageHandlerBase from "./message-handler-base";
 import { IMessageHandler } from "./IMessageHandler";
 
 export interface IMessageDelegateHandler {
@@ -13,7 +13,7 @@ export default class extends MesssageHandlerBase implements IMessageDelegateHand
     private capableMessageHandlers: Array<IMessageHandler> = [];
     public terminateAfterShortCircuit?: boolean | undefined;
     constructor() {
-        super("DefaultMessageDelegateHandler");
+        super("default_message_delegate_handler");
         RegisterMessageHandlers(this);
     }
 

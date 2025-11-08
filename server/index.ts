@@ -1,5 +1,5 @@
 import router from "./router";
-import DefaultMessageDelegateHandler from "./messages/DefaultMessageDelegateHandler";
+import DefaultMessageDelegateHandler from "./messages/default-message-delegate-handler";
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext) {
 		const r = new router(env, ctx);

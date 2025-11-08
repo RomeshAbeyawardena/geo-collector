@@ -1,10 +1,10 @@
-import MesssageHandlerBase from "./MesssageHandlerBase";
+import MesssageHandlerBase from "./message-handler-base";
 import { ICoordinateRequest, CoordinateRequestSchema } from "../models/ICoordinate";
 export default class extends MesssageHandlerBase {
     private coordinateRequest?: ICoordinateRequest;
 
     constructor() {
-        super("GeoMessageHandler");
+        super("geo_message_handler");
     }
 
     async canHandle(request: any): Promise<boolean> {
@@ -14,6 +14,7 @@ export default class extends MesssageHandlerBase {
         {
             this.coordinateRequest = result.data;
         }
+
         return result.success;
     }
 
