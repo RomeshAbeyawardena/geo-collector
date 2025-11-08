@@ -6,7 +6,7 @@ export default class extends routeBase {
 
     constructor(env: Env, ctx: ExecutionContext) {
         super(env, ctx);
-        this.url = "auth"
+        this.url = "auth";
         this.accepts.push("POST");
     }
 
