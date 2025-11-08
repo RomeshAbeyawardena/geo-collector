@@ -43,7 +43,7 @@ export default class extends routeController {
             throw lastError;
         }
         else {
-            this.addGeoLocation(coordinatesRequest);
+            await this.addGeoLocation(coordinatesRequest);
         }
 
         const message = "Coordinates committed";
@@ -67,15 +67,15 @@ export default class extends routeController {
             requestId: headerRequestId
         };
 
-        let dataSupplied:boolean = false;
+        let requiredFieldsSupplied:number = 0;
         formData.forEach((v, k) => {
             if (k == "lat" || k == "latitude") {
                 coordinatesRequest.data.latitude = Number(v);
-                dataSupplied = true;
+                requiredFieldsSupplied++;
             }
             else if (k == "lng" || k == "longitude") {
                 coordinatesRequest.data.longitude = Number(v);
-                dataSupplied = true;
+                requiredFieldsSupplied++;
             }
             else if (k == "alt" || k == "altitude") {
                 coordinatesRequest.data.altitude = Number(v);
@@ -83,14 +83,15 @@ export default class extends routeController {
         });
 
         const coordinates = coordinatesRequest.data;
-        if (!dataSupplied 
+        if (requiredFieldsSupplied < 2 
             || !Number.isFinite(coordinates.latitude)
             || !Number.isFinite(coordinates.longitude)
             || (coordinates.altitude != undefined && !Number.isFinite(coordinates.altitude))) {
             throw 'Invalid form data: Must provide a lat/latitude and lng/longtitude field.';
         }
 
-        this.addGeoLocation(coordinatesRequest);
+        await this.addGeoLocation(coordinatesRequest);
+
         const message = "Coordinates committed";
         return this.json({
             data: {

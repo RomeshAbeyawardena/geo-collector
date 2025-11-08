@@ -31,9 +31,11 @@ export default abstract class extends routeBase {
         }
         }
         catch(error) {
+             const detail = error instanceof Error ? error.message : String(error);
+
             return this.error({
                 message:"An error occurred.",
-                detail: error as string
+                detail: detail
             });
         }
     }
