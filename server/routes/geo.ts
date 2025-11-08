@@ -1,4 +1,4 @@
-import { ICoordinate, ICoordinateSchema } from "../models/ICoordinate";
+import { ICoordinateRequest, CoordinateSchema, CoordinateRequestSchema } from "../models/ICoordinate";
 import { IRouter } from "../route";
 import base from "./route-base";
 
@@ -6,51 +6,74 @@ export default class extends base {
     name: string = "Geo";
 
     private lastError?: string;
+    private readonly headerId: string = "request-id";
     constructor(env: Env, ctx: ExecutionContext) {
         super(env, ctx);
         this.accepts.push('POST')
         this.url = 'api/geo';
     }
 
-    async handleJson(request: Request): Promise<ICoordinate | null> {
+    async handleJson(request: Request): Promise<ICoordinateRequest | null> {
         const input = await request.text();
-        const result = await ICoordinateSchema.safeParseAsync(JSON.parse(input));
+        const rawJson = JSON.parse(input);
+        const result = await CoordinateRequestSchema.safeParseAsync(rawJson);
 
-        if (result.error) {
+        if (!result.success) {
             this.lastError = result.error.message;
-            return null;
-        }
 
-        return result.data as ICoordinate;
+            const coordinates = await CoordinateSchema.safeParseAsync(rawJson);
+
+            if (!coordinates.success) {
+                this.lastError = result.error.message;
+                return null;
+            }
+
+            const headerRequestId = this.headers[this.headerId];
+
+            return {
+                requestId: headerRequestId,
+                data: coordinates.data
+            }
+        }
+        else {
+            return result.data as ICoordinateRequest;
+        }
     }
 
-    async handleForm(request: Request, coordinates: ICoordinate): Promise<boolean> {
+    async handleForm(request: Request, coordinates: ICoordinateRequest): Promise<boolean> {
         const formData = await request.formData();
+        
+        if (!coordinates.data) {
+            coordinates.data = {
+                latitude: 0,
+                longitude: 0
+            }
+        }
 
         formData.forEach((v, k) => {
-
             if (k == "lat" || k == "latitude") {
-                coordinates.latitude = Number(v);
+                coordinates.data.latitude = Number(v);
             }
-
-            if (k == "lng" || k == "longitude") {
-                coordinates.longitude = Number(v);
+            else if (k == "lng" || k == "longitude") {
+                coordinates.data.longitude = Number(v);
             }
-
-            if (k == "alt" || k == "altitude") {
-                coordinates.altitude = Number(v);
+            else if (k == "alt" || k == "altitude") {
+                coordinates.data.altitude = Number(v);
             }
         });
 
-        return !Number.isFinite(coordinates.latitude)
-            || !Number.isFinite(coordinates.longitude)
-            || (coordinates.altitude != undefined && !Number.isFinite(coordinates.altitude));
+        return !Number.isFinite(coordinates.data.latitude)
+            || !Number.isFinite(coordinates.data.longitude)
+            || (coordinates.data.altitude != undefined && !Number.isFinite(coordinates.data.altitude));
     }
 
     async handle(request: Request): Promise<Response> {
 
         const headerType = this.headers["content-type"];
-        let coordinates: ICoordinate = { latitude: 0, longitude: 0 };
+        const headerRequestId = this.headers[this.headerId];
+
+        let coordinates: ICoordinateRequest = { requestId: headerRequestId, 
+            data: { latitude: 0, longitude: 0 } };
 
         if (headerType && headerType == "application/json") {
             let result = await this.handleJson(request);
@@ -73,6 +96,16 @@ export default class extends base {
             }
         }
 
+        const result = await CoordinateRequestSchema.safeParseAsync(coordinates);
+
+        if (!result.success) {
+            console.log(coordinates);
+            return this.error({
+                message: "Validation failed",
+                detail: result.error.message
+            }, 400);
+        }
+
         await this.addGeoLocation(coordinates);
         const message = "Coordinates committed";
         return this.json({
@@ -87,7 +120,7 @@ export default class extends base {
         router.registerRoute(this);
     }
 
-    async addGeoLocation(coordinates: ICoordinate): Promise<void> {
+    async addGeoLocation(coordinates: ICoordinateRequest): Promise<void> {
         console.log(coordinates);
         await this.env.geo_data.send(JSON.stringify(coordinates));
     }
