@@ -18,14 +18,23 @@ export default abstract class extends routeBase {
         });
     }
 
-    handle(request: Request): Promise<Response> {
+    async handle(request: Request): Promise<Response> {
+        try {
         const headerContentType = this.headers["content-type"] || "";
         if (headerContentType === "application/json") {
-            return this.handleJsonRequest(request);
-        } else if (headerContentType.startsWith("multipart/form-data")) {
-            return this.handleFormRequest(request);
+            return await this.handleJsonRequest(request);
+        } else if (headerContentType.startsWith("multipart/form-data")
+            || headerContentType.startsWith("application/x-www-form-urlencoded")) {
+            return await this.handleFormRequest(request);
         } else {
-            return this.handleDefault(request);
+            return await this.handleDefault(request);
+        }
+        }
+        catch(error) {
+            return this.error({
+                message:"An error occurred.",
+                detail: error as string
+            });
         }
     }
 }
