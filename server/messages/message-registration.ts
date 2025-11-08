@@ -1,7 +1,6 @@
 import geoMessageHandler from "./geo-message-handler";
-import { IMessageHandler } from "./IMessageHandler";
-
-export default function RegisterMessageHandlers(messageHandlers:IMessageHandler[]) {
+import { IMessageDelegateHandler } from "./DefaultMessageDelegateHandler";
+export default function RegisterMessageHandlers(messageDelegateHandler:IMessageDelegateHandler) {
     //primary handler registration
-    messageHandlers.push(new geoMessageHandler());
+    messageDelegateHandler.registerHandler(new geoMessageHandler());
 }

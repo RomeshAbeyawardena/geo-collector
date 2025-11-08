@@ -4,6 +4,7 @@ import { IMessageHandler } from "./IMessageHandler";
 
 export interface IMessageDelegateHandler {
     terminateAfterShortCircuit?:boolean | undefined;
+    registerHandler(handler:IMessageHandler) : void;
 }
 
 export default class extends MesssageHandlerBase implements IMessageDelegateHandler {
@@ -13,7 +14,7 @@ export default class extends MesssageHandlerBase implements IMessageDelegateHand
     public terminateAfterShortCircuit?: boolean | undefined;
     constructor() {
         super("DefaultMessageDelegateHandler");
-        RegisterMessageHandlers(this.messageHandlers);
+        RegisterMessageHandlers(this);
     }
 
     async canHandle(request: any): Promise<boolean> {
@@ -47,5 +48,9 @@ export default class extends MesssageHandlerBase implements IMessageDelegateHand
                 console.error(`Handler ${this.name} failed:`, err);
             }
         }
+    }
+
+    registerHandler(handler: IMessageHandler): void {
+        this.messageHandlers.push(handler);
     }
 }
