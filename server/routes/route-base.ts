@@ -1,4 +1,4 @@
-import { IRoute, IRouter } from "../route";
+import { IRoute, IRouter } from "./route";
 
 export interface MessageState {
     message: string;

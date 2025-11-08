@@ -1,5 +1,5 @@
 import { ICoordinateRequest, CoordinateSchema, CoordinateRequestSchema } from "../models/ICoordinate";
-import { IRouter } from "../route";
+import { IRouter } from "./route";
 import base from "./route-base";
 
 export default class extends base {

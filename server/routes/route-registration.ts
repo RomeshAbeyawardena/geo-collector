@@ -1,7 +1,7 @@
 import { IRouter } from "./route";
-import routeBase from "./routes/route-base";
-import geo from "./routes/geo";
-import catchAll from "./routes/catch-all";
+import routeBase from "./route-base";
+import geo from "./geo";
+import catchAll from "./catch-all";
 
 export default function RegisterRoutes(router: IRouter, env: Env, ctx: ExecutionContext) {
     //add routes to register here

@@ -1,4 +1,4 @@
-import router from "./router";
+import router from "./routes/router";
 import DefaultMessageDelegateHandler from "./messages/default-message-delegate-handler";
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext) {

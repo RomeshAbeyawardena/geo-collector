@@ -1,5 +1,5 @@
 import routeBase from "./route-base";
-import { IRouter } from "../route";
+import { IRouter } from "./route";
 
 export default class extends routeBase {
     name: string = "*";
