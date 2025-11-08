@@ -87,7 +87,7 @@ export default class extends routeController {
             || !Number.isFinite(coordinates.latitude)
             || !Number.isFinite(coordinates.longitude)
             || (coordinates.altitude != undefined && !Number.isFinite(coordinates.altitude))) {
-            throw 'Invalid form data: Must provide a lat/latitude and lng/longtitude field.';
+            throw 'Invalid form data: Must provide a lat/latitude and lng/longitude field.';
         }
 
         await this.addGeoLocation(coordinatesRequest);

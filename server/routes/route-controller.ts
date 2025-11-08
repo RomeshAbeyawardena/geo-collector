@@ -4,18 +4,18 @@ export default abstract class extends routeBase {
     protected async handleFormRequest(request: Request): Promise<Response> {
         return this.json({
             message: "Form Unhandled"
-        });
+        }, 501);
     }
     protected async handleJsonRequest(request: Request): Promise<Response> {
         return this.json({
             message: "JSON Unhandled"
-        });
+        }, 501);
     }
 
     protected async handleDefault(request: Request): Promise<Response> {
         return this.json({
             message: "Default unhandled"
-        });
+        }, 501);
     }
 
     async handle(request: Request): Promise<Response> {
