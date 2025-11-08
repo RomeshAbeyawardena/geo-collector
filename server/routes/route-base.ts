@@ -60,6 +60,10 @@ export default abstract class implements IRoute {
 
         if (this.accepts.length) {
             result = this.accepts.includes(request.method);
+            //shortcircuit
+            if(!result) {
+                return new Promise((r) => r(result));
+            }
         }
 
         if (this.url) {

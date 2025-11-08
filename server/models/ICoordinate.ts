@@ -7,7 +7,7 @@ export interface ICoordinate {
 }
 
 export const ICoordinateSchema = z.object({
-    latitude: z.number(),
-    longitude: z.number(),
-    altitude: z.int().optional()
+    latitude: z.float64(),
+    longitude: z.float64(),
+    altitude: z.float64().optional()
 });
