@@ -60,8 +60,8 @@ export default class extends base {
             }
             else {
                 return this.error({
-                    message: 'Invalid coordinates: '
-                        + (!this.lastError ? "Unknown" : this.lastError)
+                    message: 'Invalid coordinates',
+                    detail: this.lastError
                 });
             }
         }
@@ -77,7 +77,7 @@ export default class extends base {
         const message = "Coordinates committed";
         return this.json({
             data: {
-                name: message
+                result: message
             },
             message: message,
         }, 201);

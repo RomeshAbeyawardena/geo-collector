@@ -1,28 +1,5 @@
 import { IRoute, IRouter } from "./route";
 import RegisterRoutes from "./route-registration";
-import base from "./routes/route-base";
-
-export class MyCatchAllRoute extends base {
-    name: string = "*";
-
-    constructor(env: Env, ctx: ExecutionContext) {
-        super(env, ctx);
-    }
-
-    canAcceptRequest(request: Request): Promise<boolean> {
-
-        return new Promise((r) => r(true));
-    }
-    handle(request: Request): Promise<Response> {
-        return new Promise((r) => {
-            r(new Response('{"name":"Handled!"}'));
-        });
-    }
-
-    registerRoute(route: IRouter): void {
-        route.registerRoute(this);
-    }
-}
 
 export default class implements IRouter {
     routes: Array<IRoute> = [];
@@ -33,8 +10,6 @@ export default class implements IRouter {
         this.ctx = ctx;
 
         RegisterRoutes(this, env, ctx);
-        new MyCatchAllRoute(env, ctx)
-            .registerRoute(this);
     }
 
     registerRoute(route: IRoute): void {
