@@ -9,18 +9,18 @@ export default class extends routeBase {
     }
 
     canAcceptRequest(request: Request): Promise<boolean> {
-
-        return new Promise((r) => r(true));
+        this.getHeaders(request);
+        return this.wrapPromise(true);
     }
     handle(request: Request): Promise<Response> {
-        return new Promise((r) => {
-            r(this.json({
+        return this.wrapPromise(this.json({
                 data: { 
-                  result: "Route not found"  
+                  result: "Route not found",
+                  requestMethod: request.method,
+                  requestUrl: request.url
                 },
                 message: "Unable to find a matching route using " + request.method
             }, 404));
-        });
     }
 
     registerRoute(route: IRouter): void {

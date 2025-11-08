@@ -39,6 +39,14 @@ export default abstract class implements IRoute {
         return new Promise(r => r(value));
     }
 
+    protected getHeaders(request: Request) : void {
+        const headers = request.headers;
+
+        headers.forEach((v, h) => {
+            this.headers[h] = v;
+        });
+    }
+
     static instance<T extends IRoute>(
         ctor: new (env: Env, ctx: ExecutionContext) => T,
         env: Env,
@@ -56,11 +64,7 @@ export default abstract class implements IRoute {
     canAcceptRequest(request: Request): Promise<boolean> {
         let result = true;
 
-        const headers = request.headers;
-
-        headers.forEach((v, h) => {
-            this.headers[h] = v;
-        });
+        this.getHeaders(request);
 
         if (this.accepts.length) {
             result = this.accepts.includes(request.method);
