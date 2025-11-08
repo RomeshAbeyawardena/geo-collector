@@ -75,7 +75,13 @@ export default abstract class implements IRoute {
         }
 
         if (this.url) {
-            result = request.url.endsWith(this.url);
+            const index = request.url.indexOf('?');
+            let url = request.url;
+            if (index > -1) {
+                url = url.substring(0, index);
+            }
+
+            result = url.endsWith(this.url);
         }
 
         return this.wrapPromise(result);
