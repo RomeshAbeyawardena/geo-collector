@@ -11,6 +11,12 @@ export default class extends routeController {
         this.accepts.push("POST");
     }
 
+    protected async handleFormRequest(request: Request): Promise<Response> {
+        return this.json({
+            message: "Form handler"
+        });
+    }
+
     registerRoute(router: IRouter): void {
         router.registerRoute(this);
     }

@@ -4,7 +4,7 @@ import { IMessageHandler } from "./IMessageHandler";
 
 export interface IMessageDelegateHandler {
     terminateAfterShortCircuit?:boolean | undefined;
-    registerHandler(handler:IMessageHandler) : void;
+    registerHandler(handler:IMessageHandler) : IMessageDelegateHandler;
 }
 
 export default class extends MesssageHandlerBase implements IMessageDelegateHandler {
@@ -50,7 +50,8 @@ export default class extends MesssageHandlerBase implements IMessageDelegateHand
         }
     }
 
-    registerHandler(handler: IMessageHandler): void {
+    registerHandler(handler: IMessageHandler): IMessageDelegateHandler {
         this.messageHandlers.push(handler);
+        return this;
     }
 }
