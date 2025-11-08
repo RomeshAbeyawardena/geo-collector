@@ -23,8 +23,9 @@
 		],
 		"consumers": [
 			{
-				"queue": "geo_data",
-				"type": "service"
+				"queue": "geo-data",
+				"max_batch_size": 10,
+        		"max_batch_timeout": 5
 			}
 		]
 	}
