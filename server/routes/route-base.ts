@@ -35,6 +35,10 @@ export default abstract class implements IRoute {
         });
     }
 
+    protected wrapPromise<T>(value:T) : Promise<T> {
+        return new Promise(r => r(value));
+    }
+
     static instance<T extends IRoute>(
         ctor: new (env: Env, ctx: ExecutionContext) => T,
         env: Env,
@@ -62,7 +66,7 @@ export default abstract class implements IRoute {
             result = this.accepts.includes(request.method);
             //shortcircuit
             if(!result) {
-                return new Promise((r) => r(result));
+                return this.wrapPromise(result);
             }
         }
 
@@ -70,7 +74,7 @@ export default abstract class implements IRoute {
             result = request.url.endsWith(this.url);
         }
 
-        return new Promise((r) => r(result));
+        return this.wrapPromise(result);
     }
     abstract handle(request: Request): Promise<Response>;
     abstract registerRoute(router: IRouter): void;
