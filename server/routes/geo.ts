@@ -99,7 +99,7 @@ export default class extends base {
         const result = await CoordinateRequestSchema.safeParseAsync(coordinates);
 
         if (!result.success) {
-            console.log(coordinates);
+            
             return this.error({
                 message: "Validation failed",
                 detail: result.error.message
@@ -121,7 +121,6 @@ export default class extends base {
     }
 
     async addGeoLocation(coordinates: ICoordinateRequest): Promise<void> {
-        console.log(coordinates);
         await this.env.geo_data.send(JSON.stringify(coordinates));
     }
 }
