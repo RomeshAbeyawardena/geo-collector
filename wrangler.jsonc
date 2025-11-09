@@ -4,6 +4,13 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
+	"d1_databases": [
+		{
+			"binding": "geo_data_db",
+			"database_name": "geo-data-db",
+			"database_id": "fadb6322-45ed-40de-a79b-978e2fc57ea7"
+		}
+	],
 	"name": "geo-collector",
 	"compatibility_date": "2025-11-04",
 	"main": "server/index.ts",
