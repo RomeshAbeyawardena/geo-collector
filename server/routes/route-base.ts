@@ -19,10 +19,35 @@ export default abstract class implements IRoute {
     env: Env;
     ctx: ExecutionContext;
 
+    protected host?: string;
+    protected queryString?:string;
+
     protected accepts: Array<string> = [];
     protected url?: string;
 
     protected readonly headers: Record<string, string> = {};
+
+    protected populateQueryStringValues(request: Request,
+        requestValues?: Record<string, string|undefined>) 
+            : Record<string, string|undefined> {
+        if (!requestValues)
+        {
+            requestValues = {};
+        }
+        
+        if (this.queryString) {
+            const queryStringParts = this.queryString.split('&');
+            for(let qs of queryStringParts) {
+                const queryStringNameValue = qs.split('=');
+                if (queryStringNameValue.length == 2)
+                {
+                    requestValues[queryStringNameValue[0]] = queryStringNameValue[1];
+                }
+            }
+        }
+
+        return requestValues;
+    }
 
     protected json(result: Result, statusCode?: number) {
         return new Response(JSON.stringify(result), { status: statusCode });
@@ -79,9 +104,10 @@ export default abstract class implements IRoute {
             let url = request.url;
             if (index > -1) {
                 url = url.substring(0, index);
+                this.queryString = request.url.substring(index + 1);
             }
-
             result = url.endsWith(this.url);
+            this.host = url;
         }
 
         return this.wrapPromise(result);

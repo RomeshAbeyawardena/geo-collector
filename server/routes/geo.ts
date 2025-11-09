@@ -13,8 +13,6 @@ export default class extends routeController {
     }
 
     protected async handleJsonRequest(request: Request): Promise<Response> {
-        console.log(this.request);
-
         const result = await CoordinateRequestSchema.safeParseAsync(this.request);
 
         let coordinatesRequest: ICoordinateRequest | undefined;
