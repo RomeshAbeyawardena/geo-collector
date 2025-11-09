@@ -13,16 +13,15 @@ export default class extends routeController {
     }
 
     protected async handleJsonRequest(request: Request): Promise<Response> {
+        console.log(this.request);
 
-        const input = await request.text();
-        const rawJson = JSON.parse(input);
-        const result = await CoordinateRequestSchema.safeParseAsync(rawJson);
+        const result = await CoordinateRequestSchema.safeParseAsync(this.request);
 
         let coordinatesRequest: ICoordinateRequest | undefined;
         let lastError: string = "";
         if (!result.success) {
             lastError = result.error.message;
-            const coordinates = await CoordinateSchema.safeParseAsync(rawJson);
+            const coordinates = await CoordinateSchema.safeParseAsync(this.request);
 
             if (!coordinates.success) {
                 throw coordinates.error.message;
@@ -57,34 +56,17 @@ export default class extends routeController {
     }
 
     protected async handleFormRequest(request: Request): Promise<Response> {
-        const formData = await request.formData();
         const headerRequestId = this.headers[this.headerId];
         const coordinatesRequest: ICoordinateRequest | undefined = {
             data: {
-                latitude: 0,
-                longitude: 0
+                latitude: Number(this.request["lat"] ?? this.request["latitude"]),
+                longitude: Number(this.request["lng"] ?? this.request["longitude"])
             },
             requestId: headerRequestId
         };
 
-        let requiredFieldsSupplied:number = 0;
-        formData.forEach((v, k) => {
-            if (k == "lat" || k == "latitude") {
-                coordinatesRequest.data.latitude = Number(v);
-                requiredFieldsSupplied++;
-            }
-            else if (k == "lng" || k == "longitude") {
-                coordinatesRequest.data.longitude = Number(v);
-                requiredFieldsSupplied++;
-            }
-            else if (k == "alt" || k == "altitude") {
-                coordinatesRequest.data.altitude = Number(v);
-            }
-        });
-
         const coordinates = coordinatesRequest.data;
-        if (requiredFieldsSupplied < 2 
-            || !Number.isFinite(coordinates.latitude)
+        if (!Number.isFinite(coordinates.latitude)
             || !Number.isFinite(coordinates.longitude)
             || (coordinates.altitude != undefined && !Number.isFinite(coordinates.altitude))) {
             throw 'Invalid form data: Must provide a lat/latitude and lng/longitude field.';
