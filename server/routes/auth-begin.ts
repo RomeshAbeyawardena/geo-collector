@@ -1,4 +1,4 @@
-import { UserAuthentication } from "../models/IAuthenticatedUser";
+import UserAuthentication from "../authentication/user-authentication";
 import { IRouter } from "./route";
 import routeController from "./route-controller";
 
