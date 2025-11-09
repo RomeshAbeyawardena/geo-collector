@@ -29,14 +29,14 @@ export default abstract class extends routeBase {
 
                 for (let key in jsonData) {
                     if (Object.prototype.hasOwnProperty.call(jsonData, key)) {
-                        this.request[key] = jsonData[key];
+                        this.request[key.trim()] = jsonData[key];
                     }
                 }
                 return await this.handleJsonRequest(request);
             } else if (headerContentType.startsWith("multipart/form-data")
                 || headerContentType.startsWith("application/x-www-form-urlencoded")) {
                 const formData = await request.formData();
-                formData.forEach((value, key) => this.request[key] = value);
+                formData.forEach((value, key) => this.request[key.trim()] = value);
                 return await this.handleFormRequest(request);
             } else {
                 return await this.handleDefault(request);

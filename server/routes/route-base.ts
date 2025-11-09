@@ -34,14 +34,14 @@ export default abstract class implements IRoute {
         {
             requestValues = {};
         }
-        
+
         if (this.queryString) {
             const queryStringParts = this.queryString.split('&');
             for(let qs of queryStringParts) {
                 const queryStringNameValue = qs.split('=');
                 if (queryStringNameValue.length == 2)
                 {
-                    requestValues[queryStringNameValue[0]] = queryStringNameValue[1];
+                    requestValues[queryStringNameValue[0].trim()] = queryStringNameValue[1].trim();
                 }
             }
         }

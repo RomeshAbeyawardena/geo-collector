@@ -55,8 +55,12 @@ export default class extends routeController {
 
     protected async handleFormRequest(request: Request): Promise<Response> {
         const headerRequestId = this.headers[this.headerId];
+        console.log(this.request);
         const coordinatesRequest: ICoordinateRequest | undefined = {
             data: {
+                altitude: this.request["alt"] || this.request["altitude"]
+                    ? Number(this.request["alt"] ?? this.request["altitude"])
+                    : undefined,
                 latitude: Number(this.request["lat"] ?? this.request["latitude"]),
                 longitude: Number(this.request["lng"] ?? this.request["longitude"])
             },
