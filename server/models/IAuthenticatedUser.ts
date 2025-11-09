@@ -17,6 +17,10 @@ export interface IAuthenticatedUser {
     sub:string;
 }
 
+export interface IUserRegistrationRequest extends IUserRequest, IAuthenticatedUser {
+
+}
+
 export const AuthenticatedUserSchema = z.object({
     email:z.email(),
     name:z.string(),
