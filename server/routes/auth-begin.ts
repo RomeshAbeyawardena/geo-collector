@@ -14,13 +14,18 @@ export default class extends routeController {
     }
 
     protected async handleFormRequest(request: Request): Promise<Response> {
+        //await this.userAuth.prepareDB();
+
         const authenticatedUser = await this.userAuth.authenticate(await UserAuthentication
             .getUserRequest(this.request));
-
+        
+        console.log(authenticatedUser);
+        const isValid = authenticatedUser != undefined;
+        
         return this.json({
             data: authenticatedUser,
-            message: "Form handler"
-        });
+            message: isValid ? "User authentication passed" : "User authentication failed"
+        }, isValid ? 200 : 401);
     }
 
     registerRoute(router: IRouter): void {
