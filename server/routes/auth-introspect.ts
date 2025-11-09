@@ -30,7 +30,7 @@ export default class extends routeBase {
             const jsonToken = await jwt.sign(testPayload, "secret");
 
             console.log(jsonToken);*/
-            const token = await jwt.verify(authorisation, "secret");
+            const token = await jwt.verify(authorisation, this.env.application_secret);
             
             if (!token) {
                 throw 'failed';
@@ -50,7 +50,7 @@ export default class extends routeBase {
         catch (error) {
             return this.error({
                 message: "Unauthorised request",
-                detail: `Authorisation header invalid: ${error}`
+                details: `Authorisation header invalid: ${error}`
             }, 401);
         }
     }

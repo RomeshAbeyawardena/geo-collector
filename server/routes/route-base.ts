@@ -2,7 +2,7 @@ import { IRoute, IRouter } from "./route";
 
 export interface MessageState {
     message: string;
-    detail?: string;
+    details?: string;
 }
 
 export interface ErrorState extends MessageState {

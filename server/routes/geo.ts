@@ -1,4 +1,5 @@
-import { ICoordinateRequest, CoordinateSchema, CoordinateRequestSchema } from "../models/ICoordinate";
+import { ICoordinateRequest, CoordinateSchema, CoordinateRequestSchema, Coordinate } from "../models/ICoordinate";
+import { RequestError } from "./request-error";
 import { IRouter } from "./route";
 import routeController from "./route-controller";
 
@@ -14,15 +15,15 @@ export default class extends routeController {
 
     protected async handleJsonRequest(request: Request): Promise<Response> {
         const result = await CoordinateRequestSchema.safeParseAsync(this.request);
-
+        const error = "Validation errors occured";
         let coordinatesRequest: ICoordinateRequest | undefined;
         let lastError: string = "";
         if (!result.success) {
             lastError = result.error.message;
             const coordinates = await CoordinateSchema.safeParseAsync(this.request);
-
+            
             if (!coordinates.success) {
-                throw coordinates.error.message;
+                throw new RequestError(error, 400, coordinates.error.message);
             }
 
             const headerRequestId = this.headers[this.headerId];
@@ -37,7 +38,7 @@ export default class extends routeController {
         }
 
         if (!coordinatesRequest) {
-            throw lastError;
+            throw new RequestError(error, 400, lastError);
         }
         else {
             await this.addGeoLocation(coordinatesRequest);
@@ -55,23 +56,12 @@ export default class extends routeController {
 
     protected async handleFormRequest(request: Request): Promise<Response> {
         const headerRequestId = this.headers[this.headerId];
-        console.log(this.request);
-        const coordinatesRequest: ICoordinateRequest | undefined = {
-            data: {
-                altitude: this.request["alt"] || this.request["altitude"]
-                    ? Number(this.request["alt"] ?? this.request["altitude"])
-                    : undefined,
-                latitude: Number(this.request["lat"] ?? this.request["latitude"]),
-                longitude: Number(this.request["lng"] ?? this.request["longitude"])
-            },
-            requestId: headerRequestId
-        };
+        
+        const result = Coordinate.safeParse(this.request, true);
 
-        const coordinates = coordinatesRequest.data;
-        if (!Number.isFinite(coordinates.latitude)
-            || !Number.isFinite(coordinates.longitude)
-            || (coordinates.altitude != undefined && !Number.isFinite(coordinates.altitude))) {
-            throw 'Invalid form data: Must provide a lat/latitude and lng/longitude field.';
+        const coordinatesRequest: ICoordinateRequest = {
+            data: result,
+            requestId: headerRequestId
         }
 
         await this.addGeoLocation(coordinatesRequest);

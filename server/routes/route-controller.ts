@@ -1,3 +1,4 @@
+import { RequestError } from "./request-error";
 import routeBase from "./route-base";
 
 export default abstract class extends routeBase {
@@ -18,6 +19,26 @@ export default abstract class extends routeBase {
         return this.json({
             message: "Default unhandled"
         }, 501);
+    }
+
+    async handleError(error:unknown) : Promise<Response> {
+        if (error instanceof RequestError) {
+            return this.error({
+                message: error.message,
+                details: error.details
+            }, error.statusCode);
+        }
+
+        if (error instanceof Error) {
+            return this.error({
+                message: error.message,
+                details: error.cause as string
+            }, 500);
+        }
+
+        return this.error({
+            message: error as string
+        }, 500)
     }
 
     async handle(request: Request): Promise<Response> {
@@ -43,12 +64,7 @@ export default abstract class extends routeBase {
             }
         }
         catch (error) {
-            const detail = error instanceof Error ? error.message : String(error);
-
-            return this.error({
-                message: "An error occurred.",
-                detail: detail
-            });
+            return await this.handleError(error);
         }
     }
 }
