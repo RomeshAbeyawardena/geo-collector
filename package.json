@@ -18,7 +18,7 @@
 	"dependencies": {
 		"@cloudflare/types": "^7.0.0",
 		"@tsndr/cloudflare-worker-jwt": "^3.2.0",
-		"argon2id": "^1.0.1",
+		"@types/pbkdf2": "^3.1.2",
 		"uuid": "^13.0.0",
 		"vue": "^3.5.22",
 		"vue-router": "^4.6.3",

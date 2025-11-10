@@ -1,6 +1,6 @@
-import UserAuthentication from "../authentication/user-authentication";
-import { IRouter } from "./route";
-import routeController from "./route-controller";
+import UserAuthentication from "../../authentication/user-authentication";
+import { IRouter } from "../route";
+import routeController from "../route-controller";
 
 
 export default class extends routeController {

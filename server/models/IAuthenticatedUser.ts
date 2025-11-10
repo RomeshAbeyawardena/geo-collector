@@ -21,6 +21,14 @@ export interface IUserRegistrationRequest extends IUserRequest, IAuthenticatedUs
 
 }
 
+export const UserRegistrationRequestSchema = z.object({
+    email:z.email(),
+    clientId:z.guid(),
+    name:z.string(),
+    secret:z.string(),
+    sub:z.string()
+});
+
 export const AuthenticatedUserSchema = z.object({
     email:z.email(),
     name:z.string(),

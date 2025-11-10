@@ -1,6 +1,6 @@
-import { IUserSecurity, UserSecuritySchema } from "../models/IUserSecurity";
-import { IRouter } from "./route";
-import routeBase from "./route-base";
+import { IUserSecurity, UserSecuritySchema } from "../../models/IUserSecurity";
+import { IRouter } from "../route";
+import routeBase from "../route-base";
 import jwt from '@tsndr/cloudflare-worker-jwt';
 
 export default class extends routeBase {
