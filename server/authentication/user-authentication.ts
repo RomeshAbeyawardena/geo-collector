@@ -41,6 +41,7 @@ export default class {
 
         const data = response.data;
         if (!data) {
+            console.log(response);
             return false;
         }
 

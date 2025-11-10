@@ -24,7 +24,8 @@ export default class extends base implements IHasherEndpoint {
             exp: Math.floor(Date.now() / 1000) + (1 * (60))
         }, env.application_secret, {
             header: {
-                kid: env.application_secret,
+                typ: "JWT",
+                kid: env.signing_key_id,
                 alg: "HS256"
             }
         });

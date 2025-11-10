@@ -52,9 +52,10 @@
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
 	 */
 	 "vars": { 
-		"application_secret": "YmFiNWFlZTYtZWI3YS00YzY2LWJhNmEtZWEwZDJmM2Q3YTc5",
+		"application_secret": "bab5aee6-eb7a-4c66-ba6a-ea0d2f3d7a79",
 		"azure_auth_endpoint": "http://localhost:7018",
-		"issuer":"http://localhost:8787"
+		"issuer":"http://localhost:8787",
+		"signing_key_id": "afdd9e33-e802-4ffe-b9a7-4bb919aa7250"
 	 }
 	/**
 	 * Note: Use secrets to store sensitive data.
