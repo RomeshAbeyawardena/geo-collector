@@ -14,7 +14,7 @@ export default class extends routeController {
     }
 
     protected async handleFormRequest(request: Request): Promise<Response> {
-        //await this.userAuth.prepareDB();
+        await this.userAuth.prepareDB();
 
         const authenticatedUser = await this.userAuth.authenticate(await UserAuthentication
             .getUserRequest(this.request));

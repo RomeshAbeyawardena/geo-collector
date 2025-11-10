@@ -45,8 +45,8 @@ export default class {
             return false;
         }
 
-        await this.env.geo_data_db.prepare(`INSERT INTO [user] ([email], [name], [sub], [salt], [secret])
-            VALUES (?,?,?,?,?)`).bind(userRequest.clientId,
+        await this.env.geo_data_db.prepare(`INSERT INTO [users] ([clientId], [email], [name], [sub], [salt], [secret])
+            VALUES (?,?,?,?,?,?)`).bind(userRequest.clientId,
             userRequest.email, userRequest.name, userRequest.sub, data.hash, data.salt).run();
 
         return true;
