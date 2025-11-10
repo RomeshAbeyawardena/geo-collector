@@ -1,5 +1,5 @@
 import AzureAuthApi from "../azure/auth";
-import { AuthenticatedUserSchema, IUserRegistrationRequest, IAuthenticatedUser, IUserRequest } from "../models/IAuthenticatedUser";
+import { UserRegistrationRequestSchema, IUserRegistrationRequest, IAuthenticatedUser, IUserRequest } from "../models/IAuthenticatedUser";
 import { UserRequestSchema } from "../models/IAuthenticatedUser";
 import { RequestError } from "../routes/request-error";
 
@@ -34,9 +34,10 @@ export default class {
             [salt] TEXT not null
         )`).run()
     }
-    async registerUser(userRequest: IUserRegistrationRequest): Promise<boolean> {        
-        const token = await this.azureAuthApi.hasher.prepareUserHash(this.env, userRequest);
-        const response = await this.azureAuthApi.hasher.post(token);
+    async registerUser(userRequest: IUserRegistrationRequest): Promise<boolean> {
+        const hasher = this.azureAuthApi.hasher;         
+        const token = await hasher.prepareUserHash(this.env, userRequest);
+        const response = await hasher.post(token);
 
         console.log(response);
         const data = response.data;
@@ -60,14 +61,30 @@ export default class {
         if (!user) {
             throw new RequestError("User not found or credentials don't match", 401);
         }
-        const saltedHash = "blah"
-        //assumes user.secret will be stored as base64 string
-        if (user.secret == saltedHash) {
-            const result = await AuthenticatedUserSchema.safeParseAsync(user);
+
+        const result = await UserRegistrationRequestSchema.safeParseAsync(user);
             if (!result.success) {
                 throw new RequestError("Internal parsing failure", 500, result.error.message);
             }
+        
+        const data = result.data;
+        const hasher = this.azureAuthApi.hasher;         
+        const token = await hasher.prepareUserHash(this.env, {
+            email: data.email,
+            sub: data.sub,
+            clientId: data.clientId,
+            secret: request.secret,
+            name: data.name
+        });
 
+        const response = await hasher.post(token);
+        if (!response.data) {
+            throw new RequestError("User state unknown", 500);
+        }
+        
+        const saltedHash = "blah"
+        //assumes user.secret will be stored as base64 string
+        if (user.secret === response.data) {
             return result.data;
         }
 
