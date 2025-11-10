@@ -39,7 +39,6 @@ export default class {
         const token = await hasher.prepareUserHash(this.env, userRequest);
         const response = await hasher.post(token);
 
-        console.log(response);
         const data = response.data;
         if (!data) {
             return false;
