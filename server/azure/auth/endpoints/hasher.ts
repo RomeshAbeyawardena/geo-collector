@@ -1,11 +1,10 @@
 import base, { IEndpoint } from "./base";
-
+import { IUserRegistrationRequest } from "../../../models/IAuthenticatedUser";
+import { IHashServerResponse } from "../models/IHashResponse";
+import jwt from "@tsndr/cloudflare-worker-jwt";
 export interface IHasherEndpoint extends IEndpoint {
-    post(token:string, acceptEncoding?:string) : Promise<string>
-}
-
-export interface IHashRequest {
-
+    prepareUserHash(env:Env, user: IUserRegistrationRequest) : Promise<string>;
+    post(token:string, acceptEncoding?:string) : Promise<IHashServerResponse>
 }
 
 export default class extends base implements IHasherEndpoint {
@@ -13,8 +12,27 @@ export default class extends base implements IHasherEndpoint {
         super(baseUrl);
     }
 
-    async post(token:string, acceptEncoding?:string): Promise<string> {
+    async prepareUserHash(env:Env, user: IUserRegistrationRequest): Promise<string> {
+        return await jwt.sign({
+            aud: env.azure_auth_endpoint,
+            iss: env.issuer,
+            clientId: user.clientId,
+            sub: user.sub,
+            email: user.email,
+            name: user.name,
+            secret: user.secret,
+            exp: Math.floor(Date.now() / 1000) + (1 * (60))
+        }, env.application_secret, {
+            header: {
+                kid: env.application_secret,
+                alg: "HS256"
+            }
+        });
+    }
+    async post(token:string, acceptEncoding?:string): Promise<IHashServerResponse> {
+        console.log("API", this.baseUrl);
         const result = await fetch(`${this.baseUrl}/api/hasher`, {
+            method: "POST",
             headers: {
                 "Accept-Encoding": acceptEncoding ?? "jwt",
                 "Content-Type": "application/json"

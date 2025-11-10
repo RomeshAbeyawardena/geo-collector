@@ -1,37 +1,10 @@
+import AzureAuthApi from "../azure/auth";
 import { AuthenticatedUserSchema, IUserRegistrationRequest, IAuthenticatedUser, IUserRequest } from "../models/IAuthenticatedUser";
 import { UserRequestSchema } from "../models/IAuthenticatedUser";
 import { RequestError } from "../routes/request-error";
 
-function getBytes(value: string): Uint8Array {
-    const encoder = new TextEncoder();
-    return encoder.encode(value);
-}
-
-function base64ToUint8Array(base64: string): Uint8Array {
-    // Decode base64 into a binary string
-    const binaryString = atob(base64);
-
-    // Allocate a typed array
-    const bytes = new Uint8Array(binaryString.length);
-
-    // Fill it with char codes
-    for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-    }
-
-    return bytes;
-}
-
-function equalBytes(a: Uint8Array, b: Uint8Array): boolean {
-    if (a.length !== b.length) return false;
-    for (let i = 0; i < a.length; i++) {
-        if (a[i] !== b[i]) return false;
-    }
-    return true;
-}
-
-
 export default class {
+    azureAuthApi:AzureAuthApi;
     static async getUserRequest(request: Record<string, string>): Promise<IUserRequest> {
         var result = await UserRequestSchema.safeParseAsync(request);
 
@@ -47,6 +20,7 @@ export default class {
     private readonly env: Env;
     constructor(env: Env) {
         this.env = env;
+        this.azureAuthApi = new AzureAuthApi(env.azure_auth_endpoint);
     }
     
     async prepareDB(): Promise<void> {
@@ -61,13 +35,18 @@ export default class {
         )`).run()
     }
     async registerUser(userRequest: IUserRegistrationRequest): Promise<boolean> {        
-        const salt = crypto.getRandomValues(new Uint8Array(32));
-
-        const saltedHash = "blah";
         
+        const token = await this.azureAuthApi.hasher.prepareUserHash(this.env, userRequest);
+        const response = await this.azureAuthApi.hasher.post(token);
+
+        const data = response.data;
+        if (!data) {
+            return false;
+        }
+
         await this.env.geo_data_db.prepare(`INSERT INTO [user] ([email], [name], [sub], [salt], [secret])
             VALUES (?,?,?,?,?)`).bind(userRequest.clientId,
-            userRequest.email, userRequest.name, userRequest.sub, salt, saltedHash).run();
+            userRequest.email, userRequest.name, userRequest.sub, data.hash, data.salt).run();
 
         return true;
     }
