@@ -35,13 +35,12 @@ export default class {
         )`).run()
     }
     async registerUser(userRequest: IUserRegistrationRequest): Promise<boolean> {        
-        
         const token = await this.azureAuthApi.hasher.prepareUserHash(this.env, userRequest);
         const response = await this.azureAuthApi.hasher.post(token);
 
+        console.log(response);
         const data = response.data;
         if (!data) {
-            console.log(response);
             return false;
         }
 

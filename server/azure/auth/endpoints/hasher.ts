@@ -2,9 +2,12 @@ import base, { IEndpoint } from "./base";
 import { IUserRegistrationRequest } from "../../../models/IAuthenticatedUser";
 import { IHashServerResponse } from "../models/IHashResponse";
 import jwt from "@tsndr/cloudflare-worker-jwt";
+import { v4 as uuidV4 } from "uuid";
+
 export interface IHasherEndpoint extends IEndpoint {
     prepareUserHash(env:Env, user: IUserRegistrationRequest) : Promise<string>;
-    post(token:string, acceptEncoding?:string) : Promise<IHashServerResponse>
+    post(token:string, acceptEncoding?:string, automationId?:string) 
+        : Promise<IHashServerResponse>
 }
 
 export default class extends base implements IHasherEndpoint {
@@ -24,17 +27,19 @@ export default class extends base implements IHasherEndpoint {
             exp: Math.floor(Date.now() / 1000) + (1 * (60))
         }, env.application_secret, {
             header: {
-                typ: "JWT",
+                alg: "HS256",
                 kid: env.signing_key_id,
-                alg: "HS256"
+                typ: "JWT"
             }
         });
     }
-    async post(token:string, acceptEncoding?:string): Promise<IHashServerResponse> {
-        console.log("API", this.baseUrl);
+    async post(token:string, acceptEncoding?:string, automationId?:string)
+        : Promise<IHashServerResponse> {
+        
         const result = await fetch(`${this.baseUrl}/api/hasher`, {
             method: "POST",
             headers: {
+                "Automation-Id": automationId ?? uuidV4(),
                 "Accept-Encoding": acceptEncoding ?? "jwt",
                 "Content-Type": "application/json"
             },
