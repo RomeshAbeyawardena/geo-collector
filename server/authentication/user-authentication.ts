@@ -4,7 +4,7 @@ import { UserRequestSchema } from "../models/IAuthenticatedUser";
 import { RequestError } from "../routes/request-error";
 
 export default class {
-    azureAuthApi:AzureAuthApi;
+    azureAuthApi: AzureAuthApi;
     static async getUserRequest(request: Record<string, string>): Promise<IUserRequest> {
         var result = await UserRequestSchema.safeParseAsync(request);
 
@@ -16,13 +16,13 @@ export default class {
 
         return result.data;
     }
-    
+
     private readonly env: Env;
     constructor(env: Env) {
         this.env = env;
         this.azureAuthApi = new AzureAuthApi(env.azure_auth_endpoint);
     }
-    
+
     async prepareDB(): Promise<void> {
         await this.env.geo_data_db.prepare(`drop table [users]; create table [users] (
             [Id] INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,10 +35,10 @@ export default class {
         )`).run()
     }
     async registerUser(userRequest: IUserRegistrationRequest): Promise<boolean> {
-        const hasher = this.azureAuthApi.hasher;         
+        const hasher = this.azureAuthApi.hasher;
         const token = await hasher.prepareUserHash(this.env, userRequest);
         const response = await hasher.post(token);
-
+        console.log(response);
         const data = response.data;
         if (!data) {
             return false;
@@ -62,12 +62,12 @@ export default class {
         }
 
         const result = await UserRegistrationRequestSchema.safeParseAsync(user);
-            if (!result.success) {
-                throw new RequestError("Internal parsing failure", 500, result.error.message);
-            }
-        
+        if (!result.success) {
+            throw new RequestError("Internal parsing failure", 500, result.error.message);
+        }
+
         const data = result.data;
-        const hasher = this.azureAuthApi.hasher;         
+        const hasher = this.azureAuthApi.hasher;
         const token = await hasher.prepareUserHash(this.env, {
             email: data.email,
             sub: data.sub,
@@ -77,12 +77,13 @@ export default class {
         });
 
         const response = await hasher.post(token);
+        console.log(response);
         if (!response.data) {
             throw new RequestError("User state unknown", 500);
         }
-        
-        const saltedHash = "blah"
-        //assumes user.secret will be stored as base64 string
+
+        console.log(response);
+
         if (user.secret === response.data) {
             return result.data;
         }
