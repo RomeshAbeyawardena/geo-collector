@@ -35,6 +35,13 @@ export default class {
         )`).run()
     }
     async registerUser(userRequest: IUserRegistrationRequest): Promise<boolean> {
+        const beginAuth = this.azureAuthApi.beginAuth;
+
+        const authToken = await beginAuth.prepareToken(this.env, this.env.machine_id, this.env.application_secret);
+
+        const result = await beginAuth.post(authToken);
+        console.log(result);
+        /*
         const hasher = this.azureAuthApi.hasher;
         const token = await hasher.prepareUserHash(this.env, userRequest);
         const response = await hasher.post(token);
@@ -47,7 +54,7 @@ export default class {
         await this.env.geo_data_db.prepare(`INSERT INTO [users] ([clientId], [email], [name], [sub], [salt], [secret])
             VALUES (?,?,?,?,?,?)`).bind(userRequest.clientId,
             userRequest.email, userRequest.name, userRequest.sub, data.hash, data.salt).run();
-
+*/
         return true;
     }
     async authenticate(request: IUserRequest): Promise<IAuthenticatedUser | undefined> {

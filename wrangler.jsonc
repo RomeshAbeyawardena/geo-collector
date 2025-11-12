@@ -52,6 +52,7 @@
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
 	 */
 	 "vars": { 
+		"machine_id":"c8cd8d65-19eb-4b41-888d-e54e71698e43",
 		"application_secret": "bab5aee6-eb7a-4c66-ba6a-ea0d2f3d7a79",
 		"azure_auth_endpoint": "http://localhost:7018",
 		"issuer":"http://localhost:8787",

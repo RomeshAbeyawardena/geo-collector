@@ -38,7 +38,7 @@ export default class extends base implements IBeginAuthEndpoint {
         });
     }
     async post(token:string, acceptEncoding?:string, automationId?:string): Promise<IBeginAuthResponse> {
-        const result = await fetch(`${this.baseUrl}/api/hasher`, {
+        const result = await fetch(`${this.baseUrl}/api/begin-auth`, {
             method: "POST",
             headers: {
                 "Automation-Id": automationId ?? uuidV4(),
