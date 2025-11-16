@@ -90,7 +90,13 @@ export default class extends authentication {
             name: data.name
         });
 
-        const response = await hasher.post(token);
+        const authToken = await this.getAuthToken();
+
+        if (!authToken) {
+            throw new Error("Unable to authorise the request");
+        }
+
+        const response = await hasher.post(token, authToken);
         console.log(response);
         if (!response.data) {
             throw new RequestError("User state unknown", 500);
