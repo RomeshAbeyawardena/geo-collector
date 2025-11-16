@@ -2,7 +2,7 @@ import AzureAuthApi from "../azure/auth";
 import { UserRegistrationRequestSchema, IUserRegistrationRequest, IAuthenticatedUser, IUserRequest } from "../models/IAuthenticatedUser";
 import { UserRequestSchema } from "../models/IAuthenticatedUser";
 import { RequestError } from "../routes/request-error";
-
+import dayjs from "dayjs";
 export default class {
     azureAuthApi: AzureAuthApi;
     static async getUserRequest(request: Record<string, string>): Promise<IUserRequest> {
@@ -24,23 +24,47 @@ export default class {
     }
 
     async prepareDB(): Promise<void> {
-        await this.env.geo_data_db.prepare(`drop table [users]; create table [users] (
-            [Id] INTEGER PRIMARY KEY AUTOINCREMENT,
-            [clientId] TEXT not null,
-            [sub] TEXT not null,
-            [email] TEXT not null unique,
-            [name] TEXT not null,
-            [secret] TEXT not null,
-            [salt] TEXT not null
-        )`).run()
+        const db = this.env.geo_data_db;
+
+        await db.batch([db.prepare(`drop table [users]; 
+            create table [users] (
+             [id] INTEGER PRIMARY KEY AUTOINCREMENT
+            ,[clientId] TEXT not null
+            ,[sub] TEXT not null
+            ,[email] TEXT not null unique
+            ,[name] TEXT not null
+            ,[secret] TEXT not null
+            ,[salt] TEXT not null
+        )`), db.prepare(`drop table [servertoken]; 
+            create table [servertoken] (
+             [id]  INTEGER PRIMARY KEY AUTOINCREMENT
+            ,[token] TEXT not null
+            ,[validFrom] INTEGER not null
+            ,[expires] INTEGER null
+        )`)]);
     }
     async registerUser(userRequest: IUserRegistrationRequest): Promise<boolean> {
+        //await this.prepareDB();
         const beginAuth = this.azureAuthApi.beginAuth;
 
-        const authToken = await beginAuth.prepareToken(this.env, this.env.machine_id, this.env.application_secret);
+        const serverToken = await beginAuth.loadToken(this.env);
+        console.log("Cached token", serverToken);
+        let serverJwtT:string|undefined;
 
-        const result = await beginAuth.post(authToken);
-        console.log(result);
+        if (!serverToken){
+            const authToken = await beginAuth.prepareToken(this.env, this.env.machine_id, this.env.application_secret);
+            const result = await beginAuth.post(authToken);
+            
+            if (result.data) {
+                serverJwtT = result.data.token;
+                await beginAuth.saveToken(this.env, serverJwtT);
+            }
+        }
+        else {
+            serverJwtT = serverToken.token;
+        }
+
+        console.log(serverJwtT);
         /*
         const hasher = this.azureAuthApi.hasher;
         const token = await hasher.prepareUserHash(this.env, userRequest);
