@@ -6,7 +6,7 @@ import { v4 as uuidV4 } from "uuid";
 
 export interface IHasherEndpoint extends IEndpoint {
     prepareUserHash(env:Env, user: IUserRegistrationRequest) : Promise<string>;
-    post(token:string, acceptEncoding?:string, automationId?:string) 
+    post(token:string, authToken:string, acceptEncoding?:string, automationId?:string) 
         : Promise<IHashServerResponse>
 }
 
@@ -33,7 +33,7 @@ export default class extends base implements IHasherEndpoint {
             }
         });
     }
-    async post(token:string, acceptEncoding?:string, automationId?:string)
+    async post(token:string, authToken:string, acceptEncoding?:string, automationId?:string)
         : Promise<IHashServerResponse> {
         
         const result = await fetch(`${this.baseUrl}/api/hasher`, {
@@ -41,7 +41,8 @@ export default class extends base implements IHasherEndpoint {
             headers: {
                 "Automation-Id": automationId ?? uuidV4(),
                 "Accept-Encoding": acceptEncoding ?? "jwt",
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": authToken
             },
             body: JSON.stringify({
                 token

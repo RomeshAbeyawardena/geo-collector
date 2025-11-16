@@ -2,9 +2,8 @@ import AzureAuthApi from "../azure/auth";
 import { UserRegistrationRequestSchema, IUserRegistrationRequest, IAuthenticatedUser, IUserRequest } from "../models/IAuthenticatedUser";
 import { UserRequestSchema } from "../models/IAuthenticatedUser";
 import { RequestError } from "../routes/request-error";
-import dayjs from "dayjs";
-export default class {
-    azureAuthApi: AzureAuthApi;
+import authentication from "./authentication";
+export default class extends authentication {
     static async getUserRequest(request: Record<string, string>): Promise<IUserRequest> {
         var result = await UserRequestSchema.safeParseAsync(request);
 
@@ -17,10 +16,8 @@ export default class {
         return result.data;
     }
 
-    private readonly env: Env;
     constructor(env: Env) {
-        this.env = env;
-        this.azureAuthApi = new AzureAuthApi(env.azure_auth_endpoint);
+        super(env);
     }
 
     async prepareDB(): Promise<void> {
@@ -45,30 +42,16 @@ export default class {
     }
     async registerUser(userRequest: IUserRegistrationRequest): Promise<boolean> {
         //await this.prepareDB();
-        const beginAuth = this.azureAuthApi.beginAuth;
-
-        const serverToken = await beginAuth.loadToken(this.env);
-        console.log("Cached token", serverToken);
-        let serverJwtT:string|undefined;
-
-        if (!serverToken){
-            const authToken = await beginAuth.prepareToken(this.env, this.env.machine_id, this.env.application_secret);
-            const result = await beginAuth.post(authToken);
-            
-            if (result.data) {
-                serverJwtT = result.data.token;
-                await beginAuth.saveToken(this.env, serverJwtT);
-            }
-        }
-        else {
-            serverJwtT = serverToken.token;
-        }
-
-        console.log(serverJwtT);
-        /*
+        
         const hasher = this.azureAuthApi.hasher;
         const token = await hasher.prepareUserHash(this.env, userRequest);
-        const response = await hasher.post(token);
+        const authToken = await this.getAuthToken();
+
+        if (!authToken) {
+            throw new Error("Unable to authorise the request");
+        }
+
+        const response = await hasher.post(token, authToken);
         console.log(response);
         const data = response.data;
         if (!data) {
@@ -78,7 +61,7 @@ export default class {
         await this.env.geo_data_db.prepare(`INSERT INTO [users] ([clientId], [email], [name], [sub], [salt], [secret])
             VALUES (?,?,?,?,?,?)`).bind(userRequest.clientId,
             userRequest.email, userRequest.name, userRequest.sub, data.hash, data.salt).run();
-*/
+
         return true;
     }
     async authenticate(request: IUserRequest): Promise<IAuthenticatedUser | undefined> {
