@@ -18,7 +18,7 @@ export default abstract class {
         if (!serverToken) {
             const authToken = await beginAuth.prepareToken(this.env, this.env.machine_id, this.env.application_secret);
             const result = await beginAuth.post(authToken);
-
+            console.log(result);
             if (result.data) {
                 serverJwtT = result.data.token;
                 await beginAuth.saveToken(this.env, serverJwtT);

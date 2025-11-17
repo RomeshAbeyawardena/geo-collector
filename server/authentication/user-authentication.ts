@@ -41,7 +41,7 @@ export default class extends authentication {
         )`)]);
     }
     async registerUser(userRequest: IUserRegistrationRequest): Promise<boolean> {
-        //await this.prepareDB();
+        await this.prepareDB();
         
         const hasher = this.azureAuthApi.hasher;
         const token = await hasher.prepareUserHash(this.env, userRequest);
